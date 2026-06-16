@@ -246,7 +246,7 @@ sources:
     name: OpenAI (X)
     runner: agent
     weight: normal
-    enabled: true
+    enabled: false   # OpenAI 官博 RSS 云端已抓，X 上重复，关闭以减少一次抓取
 
   # 小红书 / 微信公众号 模板（取消注释并改 ref 为账号主页/页面 URL）：
   # - id: xhs-some-blogger
