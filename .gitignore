@@ -1,0 +1,13 @@
+# Secrets & local state — never commit
+.env
+# local-only (root) config/state; the committed CI copies live under feed/
+/config.json
+/state.json
+/last-run.log
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/

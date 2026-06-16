@@ -1,0 +1,24 @@
+{
+  "profile": {
+    "industry": "AI / 科技",
+    "interests": ["AI", "LLM", "agents", "生成式设计", "创业", "开发者工具"],
+    "exclude_keywords": []
+  },
+  "language": "zh",
+  "timezone": "Asia/Shanghai",
+  "lookback_hours": 36,
+  "volume": {
+    "max_items_total": 18,
+    "max_items_per_source": 3,
+    "lead_count": 3
+  },
+  "delivery": {
+    "method": "telegram"
+  },
+  "summarizer": {
+    "provider": "agnes",
+    "model": "agnes-2.0-flash",
+    "max_chars": 2000,
+    "language": "zh"
+  }
+}

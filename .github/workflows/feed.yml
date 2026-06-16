@@ -1,0 +1,46 @@
+name: Daily Brief
+
+on:
+  schedule:
+    # 23:30 UTC = 07:30 Asia/Shanghai (China has no DST). GitHub cron is
+    # best-effort and may run a few minutes late during peak load.
+    - cron: '30 23 * * *'
+  workflow_dispatch: {}        # allow manual "Run workflow" from the Actions tab
+
+permissions:
+  contents: write              # needed to commit the updated dedup state
+
+concurrency:
+  group: daily-brief
+  cancel-in-progress: false
+
+jobs:
+  brief:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+
+      - run: pip install -r requirements.txt
+
+      - name: Generate and deliver brief
+        env:
+          AGNES_API_KEY: ${{ secrets.AGNES_API_KEY }}
+          AGNES_BASE_URL: https://apihub.agnes-ai.com
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          DAILYBRIEF_CONFIG: feed/config.json
+          DAILYBRIEF_STATE: feed/state.json
+        run: python daily_brief.py
+
+      - name: Commit updated dedup state
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add feed/state.json
+          git diff --cached --quiet || git commit -m "chore: update brief state [skip ci]"
+          git push

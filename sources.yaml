@@ -1,0 +1,230 @@
+# DailyBrief source list — YOU OWN THIS FILE. Add a source = add a line.
+# Slice-0 supports keyless types: rss / blog / atom / youtube (runner=actions).
+# Login-wall sources (X, 微信公众号, 小红书) use runner=agent and are added in
+# Slice-2 — listed here commented-out so you can see the shape.
+#
+# Fields: id (unique), type, ref (feed URL / channel), name (display), runner,
+#         weight (lead|normal|brief), enabled.
+# Seeded vertical: AI / 科技.
+
+sources:
+  # ---- RSS / blogs (keyless) ----
+  - id: simonwillison
+    type: rss
+    ref: https://simonwillison.net/atom/everything/
+    name: Simon Willison
+    runner: actions
+    weight: lead
+    enabled: true
+
+  - id: huggingface-blog
+    type: rss
+    ref: https://huggingface.co/blog/feed.xml
+    name: Hugging Face Blog
+    runner: actions
+    weight: normal
+    enabled: true
+
+  - id: latent-space
+    type: rss
+    ref: https://www.latent.space/feed
+    name: Latent Space
+    runner: actions
+    weight: normal
+    enabled: true
+
+  - id: techcrunch-ai
+    type: rss
+    ref: https://techcrunch.com/category/artificial-intelligence/feed/
+    name: TechCrunch AI
+    runner: actions
+    weight: normal
+    enabled: true
+
+  - id: hn-ai
+    type: rss
+    ref: https://hnrss.org/newest?q=AI+OR+LLM+OR+GPT+OR+agents&count=25&points=80
+    name: Hacker News (AI, 80+ pts)
+    runner: actions
+    weight: normal
+    enabled: true
+
+  - id: ars-technica
+    type: rss
+    ref: https://feeds.arstechnica.com/arstechnica/technology-lab
+    name: Ars Technica
+    runner: actions
+    weight: brief
+    enabled: true
+
+  # ---- AI labs & research (official) ----
+  - id: openai
+    type: rss
+    ref: https://openai.com/news/rss.xml
+    name: OpenAI
+    runner: actions
+    weight: lead
+    enabled: true
+
+  - id: deepmind
+    type: rss
+    ref: https://deepmind.google/blog/rss.xml
+    name: Google DeepMind
+    runner: actions
+    weight: normal
+    enabled: true
+
+  - id: google-research
+    type: rss
+    ref: https://research.google/blog/rss/
+    name: Google Research
+    runner: actions
+    weight: brief
+    enabled: true
+
+  - id: import-ai
+    type: rss
+    ref: https://importai.substack.com/feed
+    name: Import AI (Jack Clark)
+    runner: actions
+    weight: lead
+    enabled: true
+
+  - id: raschka
+    type: rss
+    ref: https://magazine.sebastianraschka.com/feed
+    name: Sebastian Raschka
+    runner: actions
+    weight: brief
+    enabled: true
+
+  # ---- AI / 科技 媒体 ----
+  - id: mit-tech-review
+    type: rss
+    ref: https://www.technologyreview.com/feed/
+    name: MIT Technology Review
+    runner: actions
+    weight: normal
+    enabled: true
+
+  - id: wired-ai
+    type: rss
+    ref: https://www.wired.com/feed/tag/ai/latest/rss
+    name: WIRED AI
+    runner: actions
+    weight: normal
+    enabled: true
+
+  - id: ars-ai
+    type: rss
+    ref: https://arstechnica.com/ai/feed/
+    name: Ars Technica AI
+    runner: actions
+    weight: normal
+    enabled: true
+
+  - id: tldr-tech
+    type: rss
+    ref: https://tldr.tech/api/rss/tech
+    name: TLDR Tech
+    runner: actions
+    weight: normal
+    enabled: true
+
+  # ---- 科技 / 科学 ----
+  - id: ieee-spectrum
+    type: rss
+    ref: https://spectrum.ieee.org/rss/fulltext
+    name: IEEE Spectrum
+    runner: actions
+    weight: brief
+    enabled: true
+
+  - id: quanta
+    type: rss
+    ref: https://www.quantamagazine.org/feed/
+    name: Quanta Magazine
+    runner: actions
+    weight: brief
+    enabled: true
+
+  # ---- Reddit (keyless RSS; top-of-day) ----
+  # Combined multi-subreddit feed (r/A+B+C) = ONE request, which avoids Reddit's
+  # aggressive per-IP rate limit (hitting subreddits separately gets 429'd).
+  # Add/remove subreddits with '+'. (.json API is opt-in via `mode: json` but
+  # Reddit 403s it without OAuth — RSS is the reliable keyless path.)
+  # ONE combined feed (AI + tech) = 1 request. Reddit's per-IP limit reliably
+  # allows only ~1 request/run, so do NOT split into multiple reddit sources.
+  - id: reddit-ai
+    type: reddit
+    ref: MachineLearning+LocalLLaMA+OpenAI+artificial+singularity+technology
+    name: Reddit (AI/Tech)
+    runner: actions
+    weight: normal
+    enabled: true
+
+  # ---- YouTube channels (keyless channel-RSS; @handle auto-resolved) ----
+  - id: yt-latent-space
+    type: youtube
+    ref: https://www.youtube.com/@LatentSpacePod
+    name: Latent Space (YouTube)
+    runner: actions
+    weight: normal
+    enabled: true
+
+  - id: yt-no-priors
+    type: youtube
+    ref: https://www.youtube.com/@NoPriorsPodcast
+    name: No Priors
+    runner: actions
+    weight: normal
+    enabled: true
+
+  - id: yt-ycombinator
+    type: youtube
+    ref: https://www.youtube.com/@ycombinator
+    name: Y Combinator
+    runner: actions
+    weight: brief
+    enabled: true
+
+  - id: yt-lex-fridman
+    type: youtube
+    ref: https://www.youtube.com/@lexfridman
+    name: Lex Fridman
+    runner: actions
+    weight: brief
+    enabled: true
+
+  - id: yt-two-minute-papers
+    type: youtube
+    ref: https://www.youtube.com/@TwoMinutePapers
+    name: Two Minute Papers
+    runner: actions
+    weight: brief
+    enabled: true
+
+  - id: yt-a16z
+    type: youtube
+    ref: https://www.youtube.com/@a16z
+    name: a16z
+    runner: actions
+    weight: brief
+    enabled: true
+
+  - id: yt-ai-explained
+    type: youtube
+    ref: https://www.youtube.com/@aiexplained-official
+    name: AI Explained
+    runner: actions
+    weight: brief
+    enabled: true
+
+  # ---- Login-wall sources (Slice-2; needs local browser via web-access CDP) ----
+  # - id: x-karpathy
+  #   type: x
+  #   ref: "@karpathy"
+  #   name: Andrej Karpathy
+  #   runner: agent
+  #   weight: lead
+  #   enabled: false
