@@ -22,6 +22,7 @@ from dailybrief.adapters import base
 from dailybrief.config import load_config
 from dailybrief.dedup import merge_near_duplicates
 from dailybrief.deliver import deliver
+from dailybrief.inbox import load_inbox
 from dailybrief.render import render_brief
 from dailybrief.state import filter_unseen, load_state, mark_seen, now_iso, save_state
 from dailybrief.summarize import summarize_items
@@ -45,11 +46,24 @@ def within_window(iso: str, hours: int) -> bool:
         return False
 
 
-def fetch_all(sources: list[dict]) -> list:
+def fetch_all(sources: list[dict], runner_filter: str = "all", inbox: dict | None = None) -> list:
+    """runner=actions -> HTTP adapters (keyless, cloud-safe). runner=agent ->
+    read items the web-access fetch step deposited in the inbox (login-wall:
+    X / 小红书 / 公众号). runner_filter limits which kinds run: 'actions' (cloud),
+    'agent' (local supplement), or 'all'."""
+    inbox = inbox or {}
     items = []
     for s in sources:
-        if s.get("runner", "actions") == "agent":
-            log.info("skip runner=agent source (login-wall, deferred to Slice-2): %s", s.get("id"))
+        runner = s.get("runner", "actions")
+        if runner_filter != "all" and runner != runner_filter:
+            continue
+        if runner == "agent":
+            got = inbox.get(s.get("id"), [])
+            if got:
+                log.info("inbox: %d item(s) for %s", len(got), s.get("id"))
+            else:
+                log.info("no inbox items for agent source %s (run the fetch step first)", s.get("id"))
+            items.extend(got)
             continue
         adapter = base.get_adapter(s.get("type"))
         if not adapter:
@@ -132,6 +146,9 @@ def main() -> int:
                     help="ignore the time window; take the latest N items per source (good for first test)")
     ap.add_argument("--max-total", type=int, help="override volume.max_items_total")
     ap.add_argument("--no-merge", action="store_true", help="disable near-duplicate title merging")
+    ap.add_argument("--runner", choices=["all", "actions", "agent"], default="all",
+                    help="which sources to process: actions=keyless (cloud), agent=login-wall via inbox (local), all")
+    ap.add_argument("--label", help="override the brief heading (e.g. 登录墙补充)")
     args = ap.parse_args()
 
     # Windows consoles default to a legacy code page (e.g. cp936/GBK) that cannot
@@ -148,12 +165,18 @@ def main() -> int:
     if args.max_total:
         cfg.setdefault("volume", {})["max_items_total"] = args.max_total
 
+    if args.label:
+        cfg["_heading"] = args.label
+
     sources = load_sources(os.path.join(PROJECT_DIR, "sources.yaml"))
     log.info("loaded %d enabled source(s)", len(sources))
     state_path = os.getenv("DAILYBRIEF_STATE") or os.path.join(PROJECT_DIR, "state.json")
     state = load_state(state_path)
 
-    items = fetch_all(sources)
+    inbox_path = os.getenv("DAILYBRIEF_INBOX") or os.path.join(PROJECT_DIR, "agent-inbox.json")
+    inbox = load_inbox(inbox_path) if args.runner in ("all", "agent") else {}
+
+    items = fetch_all(sources, args.runner, inbox)
     items = select(items, cfg, args.backfill, use_state=not args.no_state, state=state, merge=not args.no_merge)
 
     if not items:

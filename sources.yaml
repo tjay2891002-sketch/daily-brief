@@ -220,11 +220,46 @@ sources:
     weight: brief
     enabled: true
 
-  # ---- Login-wall sources (Slice-2; needs local browser via web-access CDP) ----
-  # - id: x-karpathy
-  #   type: x
-  #   ref: "@karpathy"
-  #   name: Andrej Karpathy
+  # ---- Login-wall sources (Slice-2): fetched LOCALLY via web-access CDP (your
+  #      logged-in browser), never in the cloud. The agent fetch step writes
+  #      their items into agent-inbox.json; run locally with `--runner agent`.
+  #      Requires: Chrome/Edge remote debugging ON + you logged into the site. ----
+  - id: x-karpathy
+    type: x
+    ref: https://x.com/karpathy
+    name: Andrej Karpathy (X)
+    runner: agent
+    weight: lead
+    enabled: true
+
+  - id: x-sama
+    type: x
+    ref: https://x.com/sama
+    name: Sam Altman (X)
+    runner: agent
+    weight: normal
+    enabled: true
+
+  - id: x-openai
+    type: x
+    ref: https://x.com/OpenAI
+    name: OpenAI (X)
+    runner: agent
+    weight: normal
+    enabled: true
+
+  # 小红书 / 微信公众号 模板（取消注释并改 ref 为账号主页/页面 URL）：
+  # - id: xhs-some-blogger
+  #   type: xiaohongshu
+  #   ref: https://www.xiaohongshu.com/user/profile/<用户ID>
+  #   name: 小红书 · 某AI博主
   #   runner: agent
-  #   weight: lead
-  #   enabled: false
+  #   weight: normal
+  #   enabled: true
+  # - id: wechat-some-account
+  #   type: wechat
+  #   ref: https://mp.weixin.qq.com/...     # 公众号主页或任一文章页
+  #   name: 公众号 · 某某
+  #   runner: agent
+  #   weight: normal
+  #   enabled: true

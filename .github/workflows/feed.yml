@@ -35,7 +35,7 @@ jobs:
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           DAILYBRIEF_CONFIG: feed/config.json
           DAILYBRIEF_STATE: feed/state.json
-        run: python daily_brief.py
+        run: python daily_brief.py --runner actions
 
       - name: Commit updated dedup state
         run: |

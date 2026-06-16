@@ -62,3 +62,20 @@ class NewsItem:
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
+
+    @classmethod
+    def from_dict(cls, d: dict) -> "NewsItem":
+        """Build from a plain dict (e.g. the agent-written inbox); tolerant of
+        a few key aliases."""
+        return cls(
+            source_id=d.get("source_id") or d.get("source") or "",
+            source_type=d.get("source_type") or d.get("type") or "agent",
+            title=(d.get("title") or "").strip(),
+            url=(d.get("url") or "").strip(),
+            published_at=d.get("published_at") or d.get("date"),
+            author=d.get("author"),
+            body=(d.get("body") or d.get("text") or "")[:4000],
+            source_name=d.get("source_name") or d.get("name") or "",
+            weight=d.get("weight", "normal"),
+            raw_meta=d.get("raw_meta") or {},
+        )

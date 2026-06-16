@@ -33,11 +33,12 @@ def render_brief(items, cfg, run_iso: str) -> str:
 
     today = _local(run_iso, tz)
     date_str = today.strftime("%Y-%m-%d") if today else ""
+    label = cfg.get("_heading")
     if zh:
-        head = f"📰 每日{industry}简报 · {date_str}".replace("每日 ", "每日")
+        head = f"📰 {label or ('每日' + industry + '简报')} · {date_str}"
         sub = f"{len(items)} 条更新"
     else:
-        head = f"📰 Daily {industry} Brief · {date_str}".replace("  ", " ")
+        head = f"📰 {label or ('Daily ' + industry + ' Brief')} · {date_str}"
         sub = f"{len(items)} updates"
 
     lines = [head, sub, ""]

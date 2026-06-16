@@ -4,6 +4,8 @@
 /config.json
 /state.json
 /last-run.log
+/agent-inbox.json
+/agent-state.json
 
 # Python
 __pycache__/
