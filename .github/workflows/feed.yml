@@ -29,8 +29,8 @@ jobs:
 
       - name: Generate and deliver brief
         env:
-          AGNES_API_KEY: ${{ secrets.AGNES_API_KEY }}
-          AGNES_BASE_URL: https://apihub.agnes-ai.com
+          LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
+          LLM_BASE_URL: https://api.deepseek.com
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           DAILYBRIEF_CONFIG: feed/config.json

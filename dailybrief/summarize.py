@@ -1,17 +1,23 @@
-"""Summarize each item via the Agnes chat API (OpenAI-compatible).
+"""Summarize each item via any OpenAI-compatible chat API.
 
-Mirrors the merch-canvas Agnes client: POST {base}/v1/chat/completions,
-Bearer auth, model agnes-2.0-flash, IPv4 transport. The key is read from the
-environment only. If the key is missing or a call fails, we degrade to a body
-excerpt so the brief is still produced.
+Defaults to DeepSeek; switch provider by setting LLM_BASE_URL / the model in
+config.json["summarizer"]["model"] — no code change needed.
+POST {base}/v1/chat/completions, Bearer auth, IPv4 transport. The key is read
+from the environment only. If the key is missing or a call fails, we degrade to
+a body excerpt so the brief is still produced — but we always log an aggregate
+ok/fallback count so a silent mass-degradation cannot hide behind a green run.
 """
 import concurrent.futures
 import logging
 import os
+import threading
 
 import httpx
 
 log = logging.getLogger("dailybrief.summarize")
+
+DEFAULT_BASE_URL = "https://api.deepseek.com"
+DEFAULT_MODEL = "deepseek-chat"
 
 DEFAULT_PROMPT = (
     "You only remix the fetched text. Never fabricate; stay faithful to the source. "
@@ -58,21 +64,29 @@ def _summarize_one(client, item, prompt, model, lang, max_chars, key, base_url) 
 
 
 def summarize_items(items, cfg, prompts_dir, max_workers: int = 4):
-    key = os.getenv("AGNES_API_KEY")
-    base_url = os.getenv("AGNES_BASE_URL", "https://apihub.agnes-ai.com")
+    # LLM_* is the canonical name; AGNES_* is kept as a fallback so a
+    # half-migrated environment still works.
+    key = os.getenv("LLM_API_KEY") or os.getenv("AGNES_API_KEY")
+    base_url = (
+        os.getenv("LLM_BASE_URL")
+        or os.getenv("AGNES_BASE_URL")
+        or DEFAULT_BASE_URL
+    )
     s = cfg.get("summarizer", {})
-    model = s.get("model", "agnes-2.0-flash")
+    model = s.get("model", DEFAULT_MODEL)
     lang = s.get("language") or cfg.get("language", "en")
     max_chars = s.get("max_chars", 2000)
 
     if not key:
-        log.warning("AGNES_API_KEY not set — using body excerpts instead of LLM summaries.")
+        log.warning("LLM_API_KEY not set — using body excerpts instead of LLM summaries.")
         for it in items:
             it.summary = (it.body or it.title)[:280]
         return items
 
     prompt = load_prompt(prompts_dir)
     transport = httpx.HTTPTransport(local_address="0.0.0.0")
+    lock = threading.Lock()
+    errors = []  # one entry per degraded item, for the aggregate line below
     with httpx.Client(transport=transport) as client:
         def worker(it):
             try:
@@ -80,8 +94,19 @@ def summarize_items(items, cfg, prompts_dir, max_workers: int = 4):
             except Exception as e:  # never let one item kill the run
                 log.warning("summarize failed for %s: %s", it.url, e)
                 it.summary = (it.body or it.title)[:280]
+                with lock:
+                    errors.append(str(e))
             return it
 
         with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as ex:
             list(ex.map(worker, items))
+
+    total = max(1, len(items))
+    if errors:
+        log.warning(
+            "summarize done: %d ok / %d fallback (%.0f%% degraded) — first error: %s",
+            len(items) - len(errors), len(errors), 100.0 * len(errors) / total, errors[0],
+        )
+    else:
+        log.info("summarize done: %d ok / 0 fallback", len(items))
     return items

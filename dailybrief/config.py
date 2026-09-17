@@ -1,7 +1,7 @@
 """Config + secrets loading.
 
 Preferences come from config.json (non-secret, committable). Secrets
-(AGNES_API_KEY, TELEGRAM_*) come ONLY from the environment / .env — never
+(LLM_API_KEY, TELEGRAM_*) come ONLY from the environment / .env — never
 hardcoded in source (design doc section 9.3).
 """
 import json
@@ -25,8 +25,8 @@ DEFAULTS = {
     "dedup": {"near_dup_threshold": 0.62},
     "delivery": {"method": "telegram"},
     "summarizer": {
-        "provider": "agnes",
-        "model": "agnes-2.0-flash",
+        "provider": "deepseek",
+        "model": "deepseek-chat",
         "max_chars": 2000,
         "language": "zh",
     },

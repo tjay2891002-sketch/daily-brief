@@ -27,11 +27,11 @@ git push -u origin main
 仓库 → Settings → Secrets and variables → Actions → New repository secret，加：
 | Name | Value |
 |---|---|
-| `AGNES_API_KEY` | 你的 Agnes key |
-| `TELEGRAM_BOT_TOKEN` | `8635823843:AAH26vPNN5A7I7I7Vz6L-iUhOKRLeaHg_Jo` |
-| `TELEGRAM_CHAT_ID` | `8173234765` |
+| `LLM_API_KEY` | 你的 LLM key（DeepSeek） |
+| `TELEGRAM_BOT_TOKEN` | 你 bot 的 token（@BotFather 获取）—— **只填在 GitHub Secrets，绝不要写进本文件** |
+| `TELEGRAM_CHAT_ID` | 你的 chat id（获取方式见仓库根的 `.env.example`） |
 
-（`AGNES_BASE_URL` 已在 workflow 里写死，无需加。）
+（`LLM_BASE_URL` 已在 workflow 里写死，无需加。）
 
 **4. 手动测一次**
 仓库 → Actions 标签 → 左侧 “Daily Brief” → **Run workflow**。看绿勾 + Telegram 收到简报即成功。

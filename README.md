@@ -1,7 +1,7 @@
 # DailyBrief — 每日行业资讯简报（Slice-0 MVP）
 
 一个**每日自动刷新、源完全开放**的行业资讯简报系统。Slice-0 是最小可上线切片：
-**keyless RSS + YouTube channel-RSS → 精确去重 → Agnes 免费摘要 → Telegram 投递**。
+**keyless RSS + YouTube channel-RSS → 精确去重 → DeepSeek 摘要 → Telegram 投递**。
 不碰登录墙源、不做聚类/翻译——先把「关掉一切花活也每天送达」的主链跑通。
 
 > 完整设计与后续阶段（Phase 1 登录墙源 / Phase 2 GitHub Actions PC-无关心跳 /
@@ -12,7 +12,7 @@
 1. 读 `sources.yaml`（你拥有的源清单）+ `config.json`（偏好）+ `state.json`（去重游标）。
 2. 对每个 `runner=actions` 的 keyless 源抓取，归一化成统一的 `NewsItem`（**每条强制带 source URL**）。
 3. 按时间窗口过滤 + SHA-1 精确去重 + 每源/总量配额。
-4. 用 Agnes（`agnes-2.0-flash`，免费）逐条摘要（失败自动降级为摘录）。
+4. 用 DeepSeek（`deepseek-chat`）逐条摘要（失败自动降级为摘录，并汇总降级条数）。
 5. 组装成纯文本简报，投递到 Telegram（并始终在终端回显）。
 6. **投递成功后**才推进 `state.json` 去重游标（崩溃不漏报、不重报）。
 
@@ -23,7 +23,7 @@ cd daily-brief
 python -m venv .venv && .venv\Scripts\activate      # Windows PowerShell: .venv\Scripts\Activate.ps1
 pip install -r requirements.txt
 
-copy .env.example .env            # 填入 AGNES_API_KEY（+ 可选 Telegram）
+copy .env.example .env            # 填入 LLM_API_KEY（+ 可选 Telegram）
 copy config.example.json config.json
 
 # 首次冒烟测试：忽略时间窗口、不写状态、不投递，只在终端看输出
@@ -106,7 +106,7 @@ daily-brief/
     models.py             # NewsItem 归一化数据形状（url 强制必填）
     config.py             # 加载 .env + config.json
     state.py              # SHA-1 去重 + 原子写 state.json
-    summarize.py          # Agnes 摘要（env 取 key，失败降级）
+    summarize.py          # LLM 摘要（env 取 key，失败降级并汇总）
     dedup.py              # 标题归一化 + Jaccard 近重复合并（Slice-1）
     render.py             # 组装纯文本简报
     deliver.py            # Telegram（4096 分块）+ stdout
@@ -124,4 +124,3 @@ Actions 和 Phase 3 的 FastAPI/Pulse 直接复用，无需重写。
 
 - 所有密钥只在 `.env`（gitignore）或环境变量里，**绝不进源码**。
 - `config.json` / `state.json` 也已 gitignore（可能含偏好/抓取正文）。
-- ⚠️ 复用 merch-canvas 模式前，记得轮换 `merch-canvas/backend/app/config.py:8` 里硬编码的 Agnes key。

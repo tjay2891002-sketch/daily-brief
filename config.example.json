@@ -16,8 +16,8 @@
     "method": "telegram"
   },
   "summarizer": {
-    "provider": "agnes",
-    "model": "agnes-2.0-flash",
+    "provider": "deepseek",
+    "model": "deepseek-chat",
     "max_chars": 2000,
     "language": "zh"
   }

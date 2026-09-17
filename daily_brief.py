@@ -2,7 +2,7 @@
 """DailyBrief Slice-0 entrypoint.
 
 Flow: load config + sources + state -> fetch each source (per-source isolation)
--> window/dedup/cap -> Agnes summarize -> render -> deliver -> advance state
+-> window/dedup/cap -> LLM summarize -> render -> deliver -> advance state
 (only on successful delivery).
 
 Examples:

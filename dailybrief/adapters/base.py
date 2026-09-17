@@ -33,7 +33,7 @@ def get_adapter(source_type: str):
 
 def _transport() -> httpx.HTTPTransport:
     # Force IPv4 to avoid IPv6 DNS issues on some systems (same as the
-    # merch-canvas Agnes client).
+    # merch-canvas LLM client).
     return httpx.HTTPTransport(local_address="0.0.0.0")
 
 
